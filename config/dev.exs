@@ -8,7 +8,8 @@ config :be_exercise, BeExercise.Repo,
   database: "be_exercise_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  timeout: 500_000,
+  pool_size: 20
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -43,6 +44,8 @@ config :be_exercise, BeExerciseWeb.Endpoint,
 # If desired, both `http:` and `https:` keys can be
 # configured to run both http and https servers on
 # different ports.
+
+config :be_exercise, BeExercise.Mailer, adapter: Swoosh.Adapters.Local
 
 # Enable dev routes for dashboard and mailbox
 config :be_exercise, dev_routes: true
