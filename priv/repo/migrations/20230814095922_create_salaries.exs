@@ -8,7 +8,5 @@ defmodule BeExercise.Repo.Migrations.CreateSalaries do
       add :user_id, references(:users, on_delete: :delete_all), null: false
       timestamps()
     end
-
-    create index(:salaries, [:user_id])
   end
 end

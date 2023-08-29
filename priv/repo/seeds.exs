@@ -6,6 +6,7 @@ defmodule Seeder do
   alias BeExercise.Accounts.UserToken
   alias BeExercise.Finances
   alias BeExercise.Finances.Currency
+  alias BeExercise.Finances.Salary
   alias BeExercise.Repo
 
   @names BEChallengex.list_names()
@@ -13,20 +14,15 @@ defmodule Seeder do
 
   def create_users(0, _), do: nil
 
-  # Fixed seed count is the basis for total seed count since
-  # we're using async stream to speed up the seeding
-  # process. async_stream sometimes don't obey the seed count (20k)
-  # in the readme instructions due to the nature of async,
-  # hence why we're recursively calling it.
-  def create_users(current_count, fixed_seed_count) do
-    1..current_count
+  def create_users(seed_count) do
+    1..seed_count
     |> Task.async_stream(
-      fn _ ->
+      fn n ->
         first_name = Enum.random(@names)
         second_name = Enum.random(@names)
         last_name = Enum.random(@names)
         name = "#{first_name} #{second_name} #{last_name}"
-        email = format_email(first_name, second_name, last_name)
+        email = format_email(first_name, last_name, n)
         attrs = %{name: name, email: email, password: @password}
 
         {:ok, user} = Accounts.register_user(attrs)
@@ -37,16 +33,12 @@ defmodule Seeder do
       timeout: 3_600_000
     )
     |> Stream.run()
-
-    total_count_async = User |> select([u], count(u.id)) |> Repo.one()
-    create_users(fixed_seed_count - current_count, fixed_seed_count)
   end
 
-  defp format_email(first, second, last) do
+  defp format_email(first, last, n) do
     first_name = String.replace(first, " ", "_")
-    second_name = String.replace(second, " ", "_")
     last_name = String.replace(last, " ", "_")
-    String.downcase("#{first_name}.#{second_name}.#{last_name}@email.co")
+    String.downcase("#{first_name}.#{last_name}-#{n}@email.co")
   end
 
   defp confirm_user_token(%User{} = user) do
@@ -60,20 +52,27 @@ defmodule Seeder do
   end
 
   defp create_salary(%User{} = user) do
-    amount = Decimal.new(1, Enum.random(100..1_000_000), -2)
     statuses = Enum.random([[:active, :inactive], [:inactive, :inactive]])
     currencies = Finances.get_random_currency(2)
 
     Enum.zip(currencies, statuses)
     |> Enum.each(fn {currency, status} ->
-      attrs = %{
+      year = Enum.random(2000..2022)
+      month = Enum.random(1..12)
+      day = Enum.random(1..27)
+      hour = Enum.random(1..23)
+      min_sec = Enum.random(0..59)
+      inserted_at = NaiveDateTime.new!(year, month, day, hour, min_sec, min_sec)
+      amount = Decimal.new(1, Enum.random(100..1_000_000), -2)
+
+      Repo.insert!(%Salary{
         user_id: user.id,
         currency_id: currency.id,
         amount: amount,
-        status: status
-      }
-
-      Finances.create_salary(attrs)
+        status: status,
+        inserted_at: inserted_at,
+        updated_at: inserted_at
+      })
     end)
   end
 
@@ -91,4 +90,4 @@ defmodule Seeder do
 end
 
 Seeder.create_currencies()
-Seeder.create_users(10, 10)
+Seeder.create_users(20_000)

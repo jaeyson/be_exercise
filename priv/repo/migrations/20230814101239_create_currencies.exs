@@ -14,5 +14,6 @@ defmodule BeExercise.Repo.Migrations.CreateCurrencies do
 
     create unique_index(:currencies, [:code])
     create index(:salaries, [:currency_id])
+    create index(:salaries, [:user_id])
   end
 end

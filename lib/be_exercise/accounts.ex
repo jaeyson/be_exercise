@@ -8,6 +8,21 @@ defmodule BeExercise.Accounts do
 
   alias BeExercise.Accounts.{User, UserToken, UserNotifier}
 
+  def list_user_id(%{order_by: order_by, filter_by: filter_by}) do
+    order_by =
+      if is_nil(order_by) do
+        :asc
+      else
+        String.to_existing_atom(order_by)
+      end
+
+    User
+    |> where([u], ilike(u.name, ^"%#{filter_by}%"))
+    |> order_by({^order_by, :name})
+    |> select([:id])
+    |> Repo.all()
+  end
+
   ## Database getters
 
   @doc """
