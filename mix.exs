@@ -47,9 +47,7 @@ defmodule BeExercise.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:be_challengex, github: "remotecom/be_challengex", tag: "0.0.1"},
-      {:swoosh, "~> 1.4"},
-      {:hackney, "~> 1.18"},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:guardian, "~> 2.0"}
     ]
   end
 

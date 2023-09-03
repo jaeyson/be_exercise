@@ -4,11 +4,13 @@ defmodule BeExercise.AccountsFixtures do
   entities via the `BeExercise.Accounts` context.
   """
 
+  def unique_name, do: "name#{System.unique_integer()}"
   def unique_user_email, do: "user#{System.unique_integer()}@example.com"
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(attrs \\ %{}) do
     Enum.into(attrs, %{
+      name: unique_name(),
       email: unique_user_email(),
       password: valid_user_password()
     })

@@ -39,7 +39,7 @@ defmodule BeExercise.Finances do
     end)
   end
 
-  defp get_recent_salary(user_id) do
+  def get_recent_salary(user_id) do
     Salary
     |> preload([:user, :currency])
     |> where(user_id: ^user_id)

@@ -11,6 +11,10 @@ config :be_exercise, BeExercise.Repo,
   timeout: 500_000,
   pool_size: 20
 
+config :be_exercise, BeExerciseWeb.Guardian,
+  issuer: "be_exercise",
+  secret_key: "PVjJVd42Be7fknyU4zl38L3B0bDfg2IkREMYmf4/3KgfWbDEjVbkfw3QkkqYjJGL"
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 config :be_exercise, BeExerciseWeb.Endpoint,
@@ -44,8 +48,6 @@ config :be_exercise, BeExerciseWeb.Endpoint,
 # If desired, both `http:` and `https:` keys can be
 # configured to run both http and https servers on
 # different ports.
-
-config :be_exercise, BeExercise.Mailer, adapter: Swoosh.Adapters.Local
 
 # Enable dev routes for dashboard and mailbox
 config :be_exercise, dev_routes: true

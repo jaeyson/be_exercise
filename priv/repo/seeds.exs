@@ -89,5 +89,7 @@ defmodule Seeder do
   end
 end
 
+seed_count = 10
+
 Seeder.create_currencies()
-Seeder.create_users(20_000)
+Seeder.create_users(seed_count)

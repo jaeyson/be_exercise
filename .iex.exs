@@ -7,6 +7,7 @@ alias BeExercise.Finances
 alias BeExercise.Finances.Currency
 alias BeExercise.Finances.Salary
 alias BeExercise.Repo
+alias BeExerciseWeb.Guardian
 
 # IEx.configure(
 #   inspect: [
