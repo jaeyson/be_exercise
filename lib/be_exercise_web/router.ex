@@ -10,12 +10,8 @@ defmodule BeExerciseWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api_auth do
-    plug BeExerciseWeb.Pipeline
-  end
-
-  pipeline :ensure_api_auth do
-    plug Guardian.Plug.EnsureAuthenticated
+  pipeline :auth do
+    plug BeExerciseWeb.Auth.Pipeline
   end
 
   pipeline :api do
@@ -26,15 +22,18 @@ defmodule BeExerciseWeb.Router do
     pipe_through :api
 
     get "/", PageController, :ping
-    get "/get-token", SessionController, :get_token
+    post "/register", AuthController, :register
+    post "/login", AuthController, :login
   end
 
   scope "/", BeExerciseWeb do
-    pipe_through [:api, :api_auth, :ensure_api_auth]
+    pipe_through [:api, :auth]
 
     get "/users/:id", UserController, :show
     get "/users", UserController, :index
     post "/invite-users", UserController, :invite
+    get "/refresh-token", AuthController, :refresh_token
+    get "/logout", AuthController, :logout
   end
 
   if Application.compile_env(:be_exercise, :dev_routes) do

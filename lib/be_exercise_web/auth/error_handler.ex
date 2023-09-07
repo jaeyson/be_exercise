@@ -1,4 +1,4 @@
-defmodule BeExerciseWeb.ErrorHandler.JSON do
+defmodule BeExerciseWeb.Auth.ErrorHandler do
   import Plug.Conn
 
   @behaviour Guardian.Plug.ErrorHandler

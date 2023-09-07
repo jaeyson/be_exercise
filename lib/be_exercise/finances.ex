@@ -63,4 +63,10 @@ defmodule BeExercise.Finances do
     |> Salary.changeset(attrs)
     |> Repo.insert!()
   end
+
+  def create_currency(attrs) do
+    %Currency{}
+    |> Currency.changeset(attrs)
+    |> Repo.insert!()
+  end
 end

@@ -2,11 +2,7 @@ defmodule Seeder do
   import Ecto.Query, warn: false
 
   alias BeExercise.Accounts
-  alias BeExercise.Accounts.User
-  alias BeExercise.Accounts.UserToken
   alias BeExercise.Finances
-  alias BeExercise.Finances.Currency
-  alias BeExercise.Finances.Salary
   alias BeExercise.Repo
 
   @names BEChallengex.list_names()
@@ -26,7 +22,7 @@ defmodule Seeder do
         attrs = %{name: name, email: email, password: @password}
 
         {:ok, user} = Accounts.register_user(attrs)
-        confirm_user_token(user)
+        {:ok, _} = Accounts.confirm_user_token(user, :seeder)
         create_salary(user)
       end,
       ordered: false,
@@ -41,51 +37,46 @@ defmodule Seeder do
     String.downcase("#{first_name}.#{last_name}-#{n}@email.co")
   end
 
-  defp confirm_user_token(%User{} = user) do
-    {_, user_token} = UserToken.build_email_token(user, "confirm")
-    Repo.insert!(user_token)
-
-    Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, User.confirm_changeset(user))
-    |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, ["confirm"]))
-    |> Repo.transaction()
-  end
-
-  defp create_salary(%User{} = user) do
+  defp create_salary(user) do
     statuses = Enum.random([[:active, :inactive], [:inactive, :inactive]])
     currencies = Finances.get_random_currency(2)
 
     Enum.zip(currencies, statuses)
     |> Enum.each(fn {currency, status} ->
-      year = Enum.random(2000..2022)
-      month = Enum.random(1..12)
-      day = Enum.random(1..27)
-      hour = Enum.random(1..23)
-      min_sec = Enum.random(0..59)
-      inserted_at = NaiveDateTime.new!(year, month, day, hour, min_sec, min_sec)
-      amount = Decimal.new(1, Enum.random(100..1_000_000), -2)
+      inserted_at =
+        NaiveDateTime.new!(
+          Enum.random(2000..2022),
+          Enum.random(1..12),
+          Enum.random(1..27),
+          Enum.random(1..23),
+          Enum.random(0..59),
+          Enum.random(0..59)
+        )
 
-      Repo.insert!(%Salary{
+      attrs = %{
         user_id: user.id,
-        currency_id: currency.id,
-        amount: amount,
         status: status,
+        amount: Decimal.new(1, Enum.random(100..1_000_000), -2),
+        currency_id: currency.id,
         inserted_at: inserted_at,
         updated_at: inserted_at
-      })
+      }
+
+      Finances.create_salary(attrs)
     end)
   end
 
   def create_currencies do
-    if !Repo.exists?(Currency) do
-      Repo.transaction(fn ->
-        Repo.insert!(%Currency{code: "JPY", name: "Japanese Yen"})
-        Repo.insert!(%Currency{code: "EUR", name: "Euro"})
-        Repo.insert!(%Currency{code: "USD", name: "USA Dollar"})
-        Repo.insert!(%Currency{code: "GBP", name: "Great Britain Pound"})
-        Repo.insert!(%Currency{code: "INR", name: "Indian Rupee"})
-      end)
-    end
+    Repo.transaction(fn ->
+      [
+        {"JPY", "Japanese Yen"},
+        {"EUR", "Euro"},
+        {"USD", "USA Dollar"},
+        {"GBP", "Great Britain Pound"},
+        {"INR", "Indian Rupee"}
+      ]
+      |> Enum.each(fn {code, name} -> Finances.create_currency(%{code: code, name: name}) end)
+    end)
   end
 end
 

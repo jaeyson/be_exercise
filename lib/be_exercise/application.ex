@@ -15,9 +15,10 @@ defmodule BeExercise.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: BeExercise.PubSub},
       # Start the Endpoint (http/https)
-      BeExerciseWeb.Endpoint
+      BeExerciseWeb.Endpoint,
       # Start a worker by calling: BeExercise.Worker.start_link(arg)
       # {BeExercise.Worker, arg}
+      {Guardian.DB.Token.SweeperServer, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

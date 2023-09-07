@@ -11,9 +11,15 @@ config :be_exercise, BeExercise.Repo,
   timeout: 500_000,
   pool_size: 20
 
-config :be_exercise, BeExerciseWeb.Guardian,
+config :be_exercise, BeExerciseWeb.Auth.Guardian,
   issuer: "be_exercise",
   secret_key: "PVjJVd42Be7fknyU4zl38L3B0bDfg2IkREMYmf4/3KgfWbDEjVbkfw3QkkqYjJGL"
+
+config :guardian, Guardian.DB,
+  repo: BeExercise.Repo,
+  schema_name: "guardian_tokens",
+  token_types: ["access"],
+  sweep_interval: 60
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

@@ -11,15 +11,29 @@ defmodule BeExerciseWeb.UserController do
       order_by: params["order_by"]
     }
 
-    users = Finances.list_recent_salaries(query)
+    salaries = Finances.list_recent_salaries(query)
 
-    render(conn, :index, users: users)
+    render(conn, :index, salaries: salaries)
   end
 
   def show(conn, %{"id" => id}) do
-    user = Finances.get_recent_salary(id)
+    check_salary = fn id ->
+      case Finances.get_recent_salary(id) do
+        nil ->
+          {:error, :not_found}
 
-    render(conn, :show, user: user)
+        salary ->
+          render(conn, :show, salary: salary)
+      end
+    end
+
+    case Integer.parse(id) do
+      {id, _} ->
+        check_salary.(id)
+
+      :error ->
+        {:error, :not_found}
+    end
   end
 
   def invite(conn, _params) do

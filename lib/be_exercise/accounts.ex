@@ -78,6 +78,32 @@ defmodule BeExercise.Accounts do
     |> Repo.insert()
   end
 
+  def confirm_user_token(%User{} = user, type \\ :register) do
+    {_, user_token} = UserToken.build_email_token(user, "confirm")
+    Repo.insert!(user_token)
+
+    multi =
+      Ecto.Multi.new()
+      |> Ecto.Multi.update(:user, User.confirm_changeset(user))
+      |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, ["confirm"]))
+
+    multi =
+      case type do
+        :register ->
+          multi
+
+        :seeder ->
+          multi
+          |> Ecto.Multi.run(:send_email, fn _repo, %{user: user} ->
+            fn -> BEChallengex.send_email(%{name: user.name}) end
+            |> Task.async()
+            |> Task.await()
+          end)
+      end
+
+    Repo.transaction(multi)
+  end
+
   @doc """
   Generates a session token.
   """
