@@ -1,4 +1,8 @@
 defmodule BeExercise.Finances.Currency do
+  @moduledoc """
+  Currency schema and changesets
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 

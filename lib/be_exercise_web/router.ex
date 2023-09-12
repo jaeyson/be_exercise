@@ -24,6 +24,7 @@ defmodule BeExerciseWeb.Router do
     get "/", PageController, :ping
     post "/register", AuthController, :register
     post "/login", AuthController, :login
+    get "/logout", AuthController, :logout
   end
 
   scope "/", BeExerciseWeb do
@@ -31,9 +32,8 @@ defmodule BeExerciseWeb.Router do
 
     get "/users/:id", UserController, :show
     get "/users", UserController, :index
-    post "/invite-users", UserController, :invite
+    post "/invite-users", EmailController, :invite
     get "/refresh-token", AuthController, :refresh_token
-    get "/logout", AuthController, :logout
   end
 
   if Application.compile_env(:be_exercise, :dev_routes) do

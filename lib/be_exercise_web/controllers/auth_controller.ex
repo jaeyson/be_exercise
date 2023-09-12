@@ -15,6 +15,7 @@ defmodule BeExerciseWeb.AuthController do
         Guardian.encode_and_sign(user, %{}, ttl: {@ttl, @unit_of_time})
 
       conn
+      |> Guardian.Plug.put_current_resource(user)
       |> put_status(:created)
       |> json(%{message: "successfully registered.", token: token, expires: expires})
     else
@@ -25,8 +26,10 @@ defmodule BeExerciseWeb.AuthController do
 
   def login(conn, %{"email" => email, "password" => password}) do
     case Guardian.authenticate(email, password, @ttl, @unit_of_time) do
-      {:ok, token, expires} ->
-        put_token(conn, token, expires)
+      {:ok, user, token, expires} ->
+        conn
+        |> Guardian.Plug.put_current_resource(user)
+        |> put_token(token, expires)
 
       {:error, :unauthorized} ->
         {:error, :unauthorized}

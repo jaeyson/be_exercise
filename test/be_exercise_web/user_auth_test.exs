@@ -1,10 +1,11 @@
 defmodule BeExerciseWeb.UserAuthTest do
   use BeExerciseWeb.ConnCase, async: true
 
-  alias Phoenix.LiveView
+  import BeExercise.AccountsFixtures
+
   alias BeExercise.Accounts
   alias BeExerciseWeb.UserAuth
-  import BeExercise.AccountsFixtures
+  alias Phoenix.LiveView
 
   @remember_me_cookie "_be_exercise_web_user_remember_me"
 

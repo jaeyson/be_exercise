@@ -40,6 +40,8 @@ defmodule BeExercise.Finances do
   end
 
   def get_recent_salary(user_id) do
+    user_id = Accounts.parse_user_id(user_id)
+
     Salary
     |> preload([:user, :currency])
     |> where(user_id: ^user_id)
@@ -61,12 +63,12 @@ defmodule BeExercise.Finances do
   def create_salary(attrs) do
     %Salary{}
     |> Salary.changeset(attrs)
-    |> Repo.insert!()
+    |> Repo.insert()
   end
 
   def create_currency(attrs) do
     %Currency{}
     |> Currency.changeset(attrs)
-    |> Repo.insert!()
+    |> Repo.insert()
   end
 end

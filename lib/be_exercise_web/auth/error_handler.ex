@@ -1,4 +1,8 @@
 defmodule BeExerciseWeb.Auth.ErrorHandler do
+  @moduledoc """
+  Plugs for handling error. Returns JSON
+  """
+
   import Plug.Conn
 
   @behaviour Guardian.Plug.ErrorHandler

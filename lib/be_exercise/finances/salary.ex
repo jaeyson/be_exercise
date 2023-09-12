@@ -1,4 +1,8 @@
 defmodule BeExercise.Finances.Salary do
+  @moduledoc """
+  Salary schema and changesets
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
   alias BeExercise.Accounts.User

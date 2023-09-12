@@ -1,4 +1,8 @@
 defmodule BeExerciseWeb.Auth.Pipeline do
+  @moduledoc """
+  Plugs for handling verification of tokens
+  """
+
   use Guardian.Plug.Pipeline,
     otp_app: :be_exercise,
     error_handler: BeExerciseWeb.Auth.ErrorHandler,

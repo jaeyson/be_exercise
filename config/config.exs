@@ -10,6 +10,16 @@ import Config
 config :be_exercise,
   ecto_repos: [BeExercise.Repo]
 
+config :be_exercise, BeExerciseWeb.Auth.Guardian,
+  issuer: "be_exercise",
+  secret_key: "PVjJVd42Be7fknyU4zl38L3B0bDfg2IkREMYmf4/3KgfWbDEjVbkfw3QkkqYjJGL"
+
+config :guardian, Guardian.DB,
+  repo: BeExercise.Repo,
+  schema_name: "guardian_tokens",
+  token_types: ["access"],
+  sweep_interval: 60
+
 # Configures the endpoint
 config :be_exercise, BeExerciseWeb.Endpoint,
   url: [host: "localhost"],

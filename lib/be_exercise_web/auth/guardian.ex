@@ -1,4 +1,8 @@
 defmodule BeExerciseWeb.Auth.Guardian do
+  @moduledoc """
+  Implementation module for Guardian
+  """
+
   use Guardian, otp_app: :be_exercise
 
   alias BeExercise.Accounts
@@ -8,7 +12,7 @@ defmodule BeExerciseWeb.Auth.Guardian do
   end
 
   def resource_from_claims(%{"sub" => id}) do
-    user = Accounts.get_user!(id)
+    user = Accounts.get_user_with_role(id)
     {:ok, user}
   rescue
     Ecto.NoResultsError -> {:error, :resource_not_found}
@@ -45,7 +49,7 @@ defmodule BeExerciseWeb.Auth.Guardian do
 
       user ->
         {:ok, token, %{"exp" => expires}} = encode_and_sign(user, %{}, ttl: {ttl, unit_of_time})
-        {:ok, token, expires}
+        {:ok, user, token, expires}
     end
   end
 end

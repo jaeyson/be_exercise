@@ -1,4 +1,8 @@
 defmodule BeExercise.Accounts.UserToken do
+  @moduledoc """
+  Module for user's session and confirmation tokens.
+  """
+
   use Ecto.Schema
   import Ecto.Query
   alias BeExercise.Accounts.UserToken

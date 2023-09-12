@@ -1,7 +1,9 @@
 defmodule BeExerciseWeb.UserController do
   use BeExerciseWeb, :controller
 
+  alias BeExercise.Accounts
   alias BeExercise.Finances
+  alias BeExerciseWeb.Auth.Authorization
 
   action_fallback BeExerciseWeb.FallbackController
 
@@ -11,13 +13,20 @@ defmodule BeExerciseWeb.UserController do
       order_by: params["order_by"]
     }
 
-    salaries = Finances.list_recent_salaries(query)
+    user = Authorization.get_resource(conn)
+
+    salaries =
+      if Authorization.can_read_all?(conn, user.id),
+        do: Finances.list_recent_salaries(query),
+        else: [Finances.get_recent_salary(user.id)]
 
     render(conn, :index, salaries: salaries)
   end
 
   def show(conn, %{"id" => id}) do
-    check_salary = fn id ->
+    user_id = Accounts.parse_user_id(id)
+
+    render = fn id ->
       case Finances.get_recent_salary(id) do
         nil ->
           {:error, :not_found}
@@ -27,17 +36,10 @@ defmodule BeExerciseWeb.UserController do
       end
     end
 
-    case Integer.parse(id) do
-      {id, _} ->
-        check_salary.(id)
-
-      :error ->
-        {:error, :not_found}
+    if Authorization.can_read?(conn, user_id) do
+      render.(user_id)
+    else
+      {:error, :unauthorized}
     end
-  end
-
-  def invite(conn, _params) do
-    {:ok, message} = Finances.send_email_invites()
-    render(conn, :invite_users, message: message)
   end
 end

@@ -1,6 +1,11 @@
 defmodule BeExercise.Accounts.User do
+  @moduledoc """
+  User schema and changesets
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
+  alias BeExercise.Accounts.AuthorizationRole
   alias BeExercise.Finances.Salary
 
   schema "users" do
@@ -9,6 +14,7 @@ defmodule BeExercise.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    belongs_to :authorization_role, AuthorizationRole
     has_many :salaries, Salary
 
     timestamps()
@@ -39,10 +45,11 @@ defmodule BeExercise.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:name, :email, :password])
+    |> cast(attrs, [:name, :email, :password, :authorization_role_id])
     |> validate_required([:name])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> foreign_key_constraint(:authorization_role_id)
   end
 
   defp validate_email(changeset, opts) do
