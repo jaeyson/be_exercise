@@ -1,40 +1,33 @@
 defmodule BeExerciseWeb.UserJSON do
-  alias BeExercise.Finances.Salary
+  alias BeExercise.Finances
 
   @doc """
   Renders a list of users.
   """
   def index(%{salaries: salaries}) do
-    %{data: for(salary <- salaries, do: data(salary))}
+    %{salaries: for(salary <- salaries, do: data(salary))}
   end
 
   @doc """
-  Sends an email to all users and returns a count of sent emails.
+  Renders a paginated list of users.
   """
-  def invite_users(%{message: message}) do
-    %{message: message}
-  end
-
-  @doc """
-  Renders a single user.
-  """
-  def show(%{salary: salary}) do
-    %{data: data(salary)}
-  end
-
-  defp data(%Salary{} = salary) do
-    name = salary.user.name
-    amount = salary.amount
-    currency = salary.currency.code
-    status = salary.status
-    updated_at = salary.updated_at
-
+  def paginate_index(%{page: page}) do
     %{
-      name: name,
-      salary: amount,
-      currency: currency,
-      status: status,
-      updated_at: updated_at
+      salaries: for(salary <- page.entries, do: data(salary)),
+      next: page.metadata.after,
+      prev: page.metadata.before,
+      per_page: page.metadata.limit,
+      total: page.metadata.total_count
+    }
+  end
+
+  defp data(salary) do
+    %{
+      name: salary.name,
+      salary: salary.amount,
+      currency: Finances.get_currency_code(salary.currency_id),
+      status: salary.status,
+      updated_at: salary.updated_at
     }
   end
 end

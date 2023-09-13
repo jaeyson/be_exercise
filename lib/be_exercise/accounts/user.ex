@@ -1,4 +1,8 @@
 defmodule BeExercise.Accounts.User do
+  require Protocol
+  Protocol.derive(Jason.Encoder, Paginator.Page)
+  Protocol.derive(Jason.Encoder, Paginator.Page.Metadata)
+
   @moduledoc """
   User schema and changesets
   """
@@ -8,6 +12,7 @@ defmodule BeExercise.Accounts.User do
   alias BeExercise.Accounts.AuthorizationRole
   alias BeExercise.Finances.Salary
 
+  @derive {Jason.Encoder, only: [:name]}
   schema "users" do
     field :name, :string
     field :email, :string

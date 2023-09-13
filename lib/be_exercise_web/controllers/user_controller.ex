@@ -1,45 +1,46 @@
 defmodule BeExerciseWeb.UserController do
   use BeExerciseWeb, :controller
 
-  alias BeExercise.Accounts
   alias BeExercise.Finances
   alias BeExerciseWeb.Auth.Authorization
 
   action_fallback BeExerciseWeb.FallbackController
 
   def index(conn, params) do
-    query = %{
-      filter_by: params["filter_by"],
-      order_by: params["order_by"]
-    }
-
+    q = params["q"]
+    order_by = BeExercise.set_default(params["order_by"], :desc)
     user = Authorization.get_resource(conn)
 
     salaries =
       if Authorization.can_read_all?(conn, user.id),
-        do: Finances.list_recent_salaries(query),
-        else: [Finances.get_recent_salary(user.id)]
+        do: Finances.list_salaries(%{q: q, order_by: order_by}),
+        else: Finances.list_own_salary(%{user_id: user.id})
 
     render(conn, :index, salaries: salaries)
   end
 
-  def show(conn, %{"id" => id}) do
-    user_id = Accounts.parse_user_id(id)
+  def paginate_index(conn, params) do
+    prev = BeExercise.set_default(params["before"])
+    next = BeExercise.set_default(params["after"])
+    order_by = BeExercise.set_default(params["order_by"], :desc)
+    per_page = params["per_page"]
+    q = params["q"]
 
-    render = fn id ->
-      case Finances.get_recent_salary(id) do
-        nil ->
-          {:error, :not_found}
+    query = %{
+      before: prev,
+      after: next,
+      q: q,
+      order_by: order_by,
+      per_page: per_page
+    }
 
-        salary ->
-          render(conn, :show, salary: salary)
-      end
-    end
+    user = Authorization.get_resource(conn)
 
-    if Authorization.can_read?(conn, user_id) do
-      render.(user_id)
-    else
-      {:error, :unauthorized}
-    end
+    page =
+      if Authorization.can_read_all?(conn, user.id),
+        do: Finances.paginate_salaries(query),
+        else: Finances.paginate_own_salary(%{user_id: user.id})
+
+    render(conn, :paginate_index, page: page)
   end
 end

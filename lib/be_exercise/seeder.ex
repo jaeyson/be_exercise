@@ -8,6 +8,7 @@ defmodule BeExercise.Seeder do
   alias BeExercise.Accounts.AuthorizationRole
   alias BeExercise.Finances
   alias BeExercise.Finances.Currency
+  alias BeExercise.Finances.Salary
   alias BeExercise.Repo
 
   @names BEChallengex.list_names()
@@ -25,25 +26,24 @@ defmodule BeExercise.Seeder do
         last_name = Enum.random(@names)
         name = "#{first_name} #{second_name} #{last_name}"
         email = format_email(first_name, last_name, System.unique_integer())
-        authorization_role_id = Accounts.get_authorization_role_id(role)
+        attrs = %{name: name, email: email, password: @password}
 
-        attrs =
-          %{
-            name: name,
-            email: email,
-            password: @password,
-            authorization_role_id: authorization_role_id
-          }
-
-        {:ok, user} = Accounts.register_user(attrs)
-        {:ok, _} = Accounts.confirm_user_token(user)
-        create_salary(user)
+        create_user(attrs, role)
         Logger.info("entry #{n}")
       end,
       ordered: false,
       timeout: 3_600_000
     )
     |> Stream.run()
+  end
+
+  def create_user(attrs, role \\ "member") do
+    role_id = Accounts.get_authorization_role_id(role)
+    attrs = Map.put(attrs, :authorization_role_id, role_id)
+
+    {:ok, user} = Accounts.register_user(attrs)
+    {:ok, _} = Accounts.confirm_user_token(user)
+    create_salary(user)
   end
 
   def create_currencies do
@@ -75,28 +75,31 @@ defmodule BeExercise.Seeder do
     statuses = Enum.random([[:active, :inactive], [:inactive, :inactive]])
     currencies = Finances.get_random_currency(2)
 
-    Enum.zip(currencies, statuses)
-    |> Enum.each(fn {currency, status} ->
-      inserted_at =
-        NaiveDateTime.new!(
-          Enum.random(2000..2022),
-          Enum.random(1..12),
-          Enum.random(1..27),
-          Enum.random(1..23),
-          Enum.random(0..59),
-          Enum.random(0..59)
-        )
+    entries =
+      Enum.zip(currencies, statuses)
+      |> Enum.map(fn {currency, status} ->
+        inserted_at =
+          NaiveDateTime.new!(
+            Enum.random(2000..2022),
+            Enum.random(1..12),
+            Enum.random(1..27),
+            Enum.random(1..23),
+            Enum.random(0..59),
+            Enum.random(0..59)
+          )
 
-      attrs = %{
-        user_id: user.id,
-        status: status,
-        amount: Decimal.new(1, Enum.random(100..1_000_000), -2),
-        currency_id: currency.id,
-        inserted_at: inserted_at,
-        updated_at: inserted_at
-      }
+        updated_at = NaiveDateTime.add(inserted_at, Enum.random(1..27), :day)
 
-      Finances.create_salary(attrs)
-    end)
+        %{
+          user_id: user.id,
+          status: status,
+          amount: Decimal.new(1, Enum.random(100..1_000_000), -2),
+          currency_id: currency.id,
+          inserted_at: inserted_at,
+          updated_at: updated_at
+        }
+      end)
+
+    Repo.insert_all(Salary, entries)
   end
 end

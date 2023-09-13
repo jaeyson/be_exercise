@@ -4,27 +4,10 @@ defmodule BeExercise.Accounts do
   """
 
   import Ecto.Query, warn: false
-  alias BeExercise.Repo
-
   alias BeExercise.Accounts.AuthorizationRole
   alias BeExercise.Accounts.User
   alias BeExercise.Accounts.UserToken
-
-  def list_user_id(%{order_by: order_by, filter_by: filter_by}) do
-    order_by =
-      if is_nil(order_by) do
-        :asc
-      else
-        String.to_existing_atom(order_by)
-      end
-
-    User
-    |> where([u], ilike(u.name, ^"%#{filter_by}%"))
-    |> order_by({^order_by, :name})
-    |> select([:id])
-    |> limit(5)
-    |> Repo.all()
-  end
+  alias BeExercise.Repo
 
   @doc """
   Gets a user by email and password.

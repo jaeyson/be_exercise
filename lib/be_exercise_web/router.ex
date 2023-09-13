@@ -24,16 +24,16 @@ defmodule BeExerciseWeb.Router do
     get "/", PageController, :ping
     post "/register", AuthController, :register
     post "/login", AuthController, :login
-    get "/logout", AuthController, :logout
   end
 
   scope "/", BeExerciseWeb do
     pipe_through [:api, :auth]
 
-    get "/users/:id", UserController, :show
     get "/users", UserController, :index
+    get "/paginate-users", UserController, :paginate_index
     post "/invite-users", EmailController, :invite
     get "/refresh-token", AuthController, :refresh_token
+    delete "/logout", AuthController, :delete
   end
 
   if Application.compile_env(:be_exercise, :dev_routes) do

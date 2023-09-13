@@ -9,6 +9,9 @@ defmodule BeExerciseWeb.AuthController do
   @unit_of_time :hours
 
   def register(conn, params) do
+    role_id = Accounts.get_authorization_role_id("member")
+    params = Map.put(params, "authorization_role_id", role_id)
+
     with {:ok, user} <- Accounts.register_user(params),
          {:ok, _} <- Accounts.confirm_user_token(user) do
       {:ok, token, %{"exp" => expires}} =
@@ -50,7 +53,7 @@ defmodule BeExerciseWeb.AuthController do
     end
   end
 
-  def logout(conn, _params) do
+  def delete(conn, _params) do
     with token <- Guardian.Plug.current_token(conn),
          {:ok, _claims} <- Guardian.revoke(token) do
       conn

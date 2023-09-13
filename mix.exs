@@ -49,7 +49,8 @@ defmodule BeExercise.MixProject do
       {:be_challengex, github: "remotecom/be_challengex", tag: "0.0.1"},
       {:guardian, "~> 2.0"},
       {:guardian_db, "~> 2.0"},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:paginator, "~> 1.2.0"}
     ]
   end
 

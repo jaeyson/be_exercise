@@ -83,3 +83,5 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 ## Implementation details
 
 This section is for you to fill in with any decisions you made that may be relevant. You can also change this README to fit your needs.
+
+- With auth I've implemented signup/in/out and didn't include the update pass/user due to personal time constraints.
