@@ -5,6 +5,16 @@ defmodule BeExerciseWeb.Auth.Authorization do
 
   alias BeExerciseWeb.Auth.Guardian
 
+  @doc """
+  Checks if it can read all records. When a user
+  is "member", it returns false.
+
+  ## Examples
+
+      iex> Authorization.can_read_all?(conn, 1)
+      false
+
+  """
   def can_read_all?(conn, user_id) do
     user = get_resource(conn)
     role = user.authorization_role.name
@@ -16,6 +26,15 @@ defmodule BeExerciseWeb.Auth.Authorization do
     end
   end
 
+  @doc """
+  Checks if it can read a record.
+
+  ## Examples
+
+      iex> Authorization.can_read?(conn, 1)
+      true
+
+  """
   def can_read?(conn, user_id) do
     user = get_resource(conn)
     role = user.authorization_role.name
@@ -27,6 +46,16 @@ defmodule BeExerciseWeb.Auth.Authorization do
     end
   end
 
+  @doc """
+  Gets the current resource from a conn. A resource
+  is a User struct.
+
+  ## Examples
+
+      iex> Authorization.get_resource(conn)
+      %BeExercise.Accounts.User{}
+
+  """
   def get_resource(conn) do
     {:ok, resource, _claims} =
       conn
