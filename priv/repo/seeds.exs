@@ -1,6 +1,6 @@
 alias BeExercise.Seeder
 
-seed_count = 10
+seed_count = 20_000
 
 Seeder.create_authorization_roles()
 Seeder.create_currencies()
