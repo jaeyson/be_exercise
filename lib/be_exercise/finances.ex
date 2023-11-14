@@ -221,12 +221,12 @@ defmodule BeExercise.Finances do
 
   ## Examples
 
-      iex> BeExercise.Finances.get_random_currency(1)
-      %BeExercise.Finances.Currency{}
+      iex> BeExercise.Finances.get_random_currencies(1)
+      [%BeExercise.Finances.Currency{}]
 
   """
-  @spec get_random_currency(integer()) :: [] | [struct()]
-  def get_random_currency(count) do
+  @spec get_random_currencies(integer()) :: [] | [struct()]
+  def get_random_currencies(count) do
     Currency
     |> limit(^count)
     |> order_by(fragment("RANDOM()"))

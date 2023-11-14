@@ -5,6 +5,7 @@ defmodule BeExercise.Seeder do
 
   require Logger
   alias BeExercise.Accounts
+  alias BeExercise.Accounts.User
   alias BeExercise.Accounts.AuthorizationRole
   alias BeExercise.Finances
   alias BeExercise.Finances.Currency
@@ -13,6 +14,63 @@ defmodule BeExercise.Seeder do
 
   @names BEChallengex.list_names()
   @password "Password!123"
+
+  def create_users_v2(seed_count) do
+    users =
+      1..seed_count
+      |> Enum.map(fn n ->
+        first_name = Enum.random(@names)
+        second_name = Enum.random(@names)
+        last_name = Enum.random(@names)
+        name = "#{first_name} #{second_name} #{last_name}"
+        email = format_email(first_name, last_name, System.unique_integer())
+        inserted_at = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+        Logger.info("seed #{n}")
+
+        %{
+          name: name,
+          email: email,
+          hashed_password: @password,
+          authorization_role_id: 1,
+          inserted_at: inserted_at,
+          updated_at: inserted_at
+        }
+      end)
+
+    {_count, users} = Repo.insert_all(User, users, returning: [:id])
+    statuses = Enum.random([[:active, :inactive], [:inactive, :inactive]])
+    currencies = Finances.get_random_currencies(2)
+
+    salaries =
+      Enum.map(users, fn user ->
+        Enum.zip(currencies, statuses)
+        |> Enum.map(fn {currency, status} ->
+          inserted_at =
+            NaiveDateTime.new!(
+              Enum.random(2000..2022),
+              Enum.random(1..12),
+              Enum.random(1..27),
+              Enum.random(1..23),
+              Enum.random(0..59),
+              Enum.random(0..59)
+            )
+
+          updated_at = NaiveDateTime.add(inserted_at, Enum.random(1..27), :day)
+
+          %{
+            user_id: user.id,
+            status: status,
+            amount: Decimal.new(1, Enum.random(100..1_000_000), -2),
+            currency_id: currency.id,
+            inserted_at: inserted_at,
+            updated_at: updated_at
+          }
+        end)
+      end)
+      |> List.flatten()
+
+    Repo.insert_all(Salary, salaries)
+  end
 
   def create_users(seed_count, role \\ "member")
   def create_users(0, _), do: nil
@@ -73,7 +131,7 @@ defmodule BeExercise.Seeder do
 
   defp create_salary(user) do
     statuses = Enum.random([[:active, :inactive], [:inactive, :inactive]])
-    currencies = Finances.get_random_currency(2)
+    currencies = Finances.get_random_currencies(2)
 
     entries =
       Enum.zip(currencies, statuses)

@@ -8,8 +8,7 @@ config :be_exercise, BeExercise.Repo,
   database: "be_exercise_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
-  timeout: 500_000,
-  pool_size: 20
+  pool_size: 10
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
